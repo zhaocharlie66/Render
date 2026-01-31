@@ -1,17 +1,15 @@
-# 使用 Ubuntu 22.04 作为基础镜像
-FROM ubuntu:22.04
+FROM node:alpine3.20
 
-# 安装 Shellinabox
-RUN apt-get update && \
-    apt-get install -y shellinabox && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+WORKDIR /tmp
 
-# 设置 root 用户的密码为 'root'
-RUN echo 'root:frepai' | chpasswd
+COPY . .
 
-# 暴露 22 端口
-EXPOSE 22
+EXPOSE 3000/tcp
 
-# 启动 Shellinabox
-CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]
+RUN apk update && apk upgrade &&\
+    apk add --no-cache openssl curl gcompat iproute2 coreutils &&\
+    apk add --no-cache bash &&\
+    chmod +x index.js &&\
+    npm install
+
+CMD ["node", "index.js"]
