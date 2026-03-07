@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>祈愿和平 | Pray for Peace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif+SC:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-color: #e0e0e0;
+            --accent-color: #d4af37; /* 暗金色，象征珍贵与纪念 */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            font-family: 'Noto Serif SC', 'Cinzel', serif;
+            color: var(--text-color);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 动态背景图：使用具有史诗感和深邃感的暗调星空/废墟意象 */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to bottom, rgba(5,5,5,0.75), rgba(5,5,5,0.98)), url('https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            animation: slowZoom 40s linear infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 40px;
+            z-index: 1;
+            width: 90%;
+        }
+
+        /* 顶部多语言名言轮播容器 */
+        .quote-wrapper {
+            position: relative;
+            height: 120px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quote-lang {
+            position: absolute;
+            width: 100%;
+            font-size: 1.2rem;
+            color: #999;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+            line-height: 1.6;
+            opacity: 0;
+            /* 总共6种语言，每种展示6秒，总周期36秒 */
+            animation: quoteFade 36s infinite;
+        }
+
+        .quote-lang span {
+            display: block;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #555;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+        }
+
+        /* 设置每种语言的动画延迟，形成无缝衔接 */
+        .quote-lang:nth-child(1) { animation-delay: 0s; }   /* 中文 */
+        .quote-lang:nth-child(2) { animation-delay: 6s; }   /* 英文 */
+        .quote-lang:nth-child(3) { animation-delay: 12s; }  /* 法语 */
+        .quote-lang:nth-child(4) { animation-delay: 18s; }  /* 西语 */
+        .quote-lang:nth-child(5) { animation-delay: 24s; }  /* 日语 */
+        .quote-lang:nth-child(6) { animation-delay: 30s; }  /* 韩语 */
+
+        /* 分割线 */
+        .divider {
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            border: none;
+            margin: 0 auto 50px auto;
+            animation: expandLine 2.5s ease forwards 2s;
+        }
+
+        /* 语言列表 */
+        .peace-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .peace-lines h1 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin: 0;
+            opacity: 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .dove {
+            display: inline-block;
+            margin-right: 15px;
+            color: #fff;
+            animation: heartbeat 3s ease-in-out infinite;
+        }
+
+        /* 渐入效果 */
+        .lang-1 { animation: slideUpFade 2s ease forwards 3s; }
+        .lang-2 { animation: slideUpFade 2s ease forwards 4.5s; color: #ccc; font-size: 1.5rem; }
+        .lang-3 { animation: slideUpFade 2s ease forwards 6s; color: #aaa; font-size: 1.4rem; }
+        .lang-4 { animation: slideUpFade 2s ease forwards 7.5s; color: #888; font-size: 1.3rem; }
+        .lang-5 { animation: slideUpFade 2s ease forwards 9s; color: #666; font-size: 1.2rem; }
+        .lang-6 { animation: slideUpFade 2s ease forwards 10.5s; color: #555; font-size: 1.1rem; }
+
+        .footer-note {
+            margin-top: 60px;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            letter-spacing: 4px;
+            opacity: 0;
+            animation: fadeIn 3s ease forwards 13s;
+            text-transform: uppercase;
+        }
+
+        /* 关键帧动画 */
+        @keyframes quoteFade {
+            0% { opacity: 0; transform: translateY(10px); filter: blur(2px); }
+            3%, 13.6% { opacity: 1; transform: translateY(0); filter: blur(0); }
+            16.6%, 100% { opacity: 0; transform: translateY(-10px); filter: blur(2px); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes expandLine {
+            to { width: 60%; opacity: 0.4; }
+        }
+
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.15); opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.6); }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .quote-wrapper { height: 160px; } /* 移动端换行较多，增加容器高度 */
+            .quote-lang { font-size: 1.05rem; }
+            .peace-lines h1 { font-size: 1.5rem; }
+            .lang-2, .lang-3, .lang-4, .lang-5, .lang-6 { font-size: 1.1rem !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="container">
+        
+        <div class="quote-wrapper">
+            <div class="quote-lang">
+                “和平时期，儿子埋葬父亲。<br>战争时期，父亲埋葬儿子。”
+                <span>— 希罗多德 (Herodotus)</span>
+            </div>
+            <div class="quote-lang">
+                "In peace, sons bury their fathers.<br>In war, fathers bury their sons."
+                <span>— Herodotus</span>
+            </div>
+            <div class="quote-lang">
+                "En temps de paix, les fils enterrent leurs pères.<br>En temps de guerre, les pères enterrent leurs fils."
+                <span>— Hérodote</span>
+            </div>
+            <div class="quote-lang">
+                "En la paz, los hijos entierran a sus padres.<br>En la guerra, los padres entierran a sus hijos."
+                <span>— Heródoto</span>
+            </div>
+            <div class="quote-lang">
+                "平和な時には、息子が父親を葬る。<br>戦争の時には、父親が息子を葬る。"
+                <span>— ヘロドトス (Herodotus)</span>
+            </div>
+            <div class="quote-lang">
+                "평화시에는 아들이 아버지를 묻고,<br>전시에는 아버지가 아들을 묻는다."
+                <span>— 헤로도토스 (Herodotus)</span>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="peace-lines">
+            <h1 class="lang-1"><span class="dove">🕊️</span>愿世界和平</h1>
+            <h1 class="lang-2"><span class="dove">🕊️</span>May peace prevail on Earth</h1>
+            <h1 class="lang-3"><span class="dove">🕊️</span>Que la paix soit dans le monde</h1>
+            <h1 class="lang-4"><span class="dove">🕊️</span>Que la paz reine en el mundo</h1>
+            <h1 class="lang-5"><span class="dove">🕊️</span>世界が平和でありますように</h1>
+            <h1 class="lang-6"><span class="dove">🕊️</span>세계 평화를 기원합니다</h1>
+        </div>
+
+        <div class="footer-note">
+            Reflect • Remember • Act
+        </div>
+    </div>
+</body>
+</html>
