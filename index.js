@@ -1,32 +1,34 @@
 const express = require("express");
-const app = express();
 const axios = require("axios");
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
-const { promisify } = require("util");
-const exec = promisify(require("child_process").exec);
+const { spawn } = require("child_process");
 
-const FILE_PATH = process.env.FILE_PATH || "./tmp";
-const SUB_PATH = process.env.SUB_PATH || "crazyworld";
+const app = express();
+
+/* ---------------- ENV ---------------- */
+
 const PORT = process.env.PORT || 3000;
-const HEALTH_PATH = process.env.HEALTH_PATH || "/health";
+const HOST = "0.0.0.0";
+
+const FILE_PATH = "./tmp";
+const HEALTH_PATH = "/health";
+const SUB_PATH = "crazyworld";
 
 const UUID =
   process.env.UUID || "9afd1229-b893-40c1-84dd-51e7ce204913";
 
-const ARGO_DOMAIN = process.env.ARGO_DOMAIN || "";
 const ARGO_PORT = process.env.ARGO_PORT || 8001;
+const ARGO_DOMAIN = process.env.ARGO_DOMAIN || "";
 
 const CFIP = process.env.CFIP || "cdns.doon.eu.org";
 const CFPORT = process.env.CFPORT || 443;
-const NAME = process.env.NAME || "Render";
+const NAME = process.env.NAME || "Apply";
 
-/* ---------- 静态资源 ---------- */
+/* ---------------- STATIC ---------------- */
 
-app.use(express.static(path.join(__dirname)));
-
-/* ---------- 首页 ---------- */
+app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
 
@@ -35,102 +37,33 @@ app.get("/", (req, res) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(200).send("Perish World Peace！");
+    res.send("Perish World Peace！");
   }
 
 });
 
-/* ---------- Health Check ---------- */
+/* ---------------- HEALTH ---------------- */
 
 app.get(HEALTH_PATH, (req, res) => {
   res.status(200).send("OK");
 });
 
-/* ---------- 创建运行目录 ---------- */
+/* ---------------- PATH ---------------- */
 
 if (!fs.existsSync(FILE_PATH)) {
   fs.mkdirSync(FILE_PATH);
 }
 
-/* ---------- 工具 ---------- */
+const XRAY = path.join(FILE_PATH, "web");
+const ARGO = path.join(FILE_PATH, "bot");
 
-function generateRandomName() {
-  const chars = "abcdefghijklmnopqrstuvwxyz";
-  let r = "";
-  for (let i = 0; i < 6; i++) {
-    r += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return r;
-}
+const CONFIG = path.join(FILE_PATH, "config.json");
+const BOOTLOG = path.join(FILE_PATH, "boot.log");
+const SUBFILE = path.join(FILE_PATH, "sub.txt");
 
-const webName = generateRandomName();
-const botName = generateRandomName();
+/* ---------------- ARCH ---------------- */
 
-const webPath = path.join(FILE_PATH, webName);
-const botPath = path.join(FILE_PATH, botName);
-
-const subPath = path.join(FILE_PATH, "sub.txt");
-const bootLogPath = path.join(FILE_PATH, "boot.log");
-
-/* ---------- 清理文件 ---------- */
-
-function cleanupOldFiles() {
-  try {
-    const files = fs.readdirSync(FILE_PATH);
-
-    files.forEach((file) => {
-      const fp = path.join(FILE_PATH, file);
-      if (fs.statSync(fp).isFile()) {
-        fs.unlinkSync(fp);
-      }
-    });
-
-  } catch {}
-}
-
-/* ---------- 生成配置 ---------- */
-
-async function generateConfig() {
-
-  const config = {
-    log: {
-      access: "/dev/null",
-      error: "/dev/null",
-      loglevel: "none"
-    },
-    inbounds: [
-      {
-        port: ARGO_PORT,
-        protocol: "vless",
-        settings: {
-          clients: [{ id: UUID }],
-          decryption: "none",
-          fallbacks: [{ dest: 3001 }]
-        },
-        streamSettings: { network: "tcp" }
-      },
-      {
-        port: 3001,
-        listen: "127.0.0.1",
-        protocol: "vless",
-        settings: {
-          clients: [{ id: UUID }],
-          decryption: "none"
-        }
-      }
-    ],
-    outbounds: [{ protocol: "freedom" }]
-  };
-
-  fs.writeFileSync(
-    path.join(FILE_PATH, "config.json"),
-    JSON.stringify(config, null, 2)
-  );
-}
-
-/* ---------- 架构 ---------- */
-
-function getSystemArchitecture() {
+function getArch() {
 
   const arch = os.arch();
 
@@ -140,82 +73,96 @@ function getSystemArchitecture() {
 
 }
 
-/* ---------- 下载 ---------- */
+/* ---------------- DOWNLOAD ---------------- */
 
-function downloadFile(fileName, url) {
+async function download(url, file) {
 
-  return new Promise(async (resolve, reject) => {
+  const writer = fs.createWriteStream(file);
 
-    const writer = fs.createWriteStream(fileName);
+  const res = await axios({
+    url,
+    method: "GET",
+    responseType: "stream"
+  });
 
-    try {
+  res.data.pipe(writer);
 
-      const response = await axios({
-        method: "get",
-        url,
-        responseType: "stream"
-      });
-
-      response.data.pipe(writer);
-
-      writer.on("finish", resolve);
-      writer.on("error", reject);
-
-    } catch (e) {
-
-      reject(e);
-
-    }
-
+  return new Promise((resolve) => {
+    writer.on("finish", resolve);
   });
 
 }
 
-/* ---------- 文件 ---------- */
+/* ---------------- XRAY CONFIG ---------------- */
 
-function getFilesForArchitecture(arch) {
+function generateConfig() {
 
-  if (arch === "arm") {
+  const config = {
 
-    return [
-      { fileName: webPath, fileUrl: "https://arm64.ssss.nyc.mn/web" },
-      { fileName: botPath, fileUrl: "https://arm64.ssss.nyc.mn/bot" }
-    ];
+    log: {
+      access: "/dev/null",
+      error: "/dev/null",
+      loglevel: "none"
+    },
 
-  }
+    inbounds: [
 
-  return [
-    { fileName: webPath, fileUrl: "https://amd64.ssss.nyc.mn/web" },
-    { fileName: botPath, fileUrl: "https://amd64.ssss.nyc.mn/bot" }
-  ];
+      {
+        port: ARGO_PORT,
+        protocol: "vless",
+
+        settings: {
+          clients: [{ id: UUID }],
+          decryption: "none",
+          fallbacks: [{ dest: 3001 }]
+        },
+
+        streamSettings: {
+          network: "tcp"
+        }
+
+      },
+
+      {
+        port: 3001,
+        listen: "127.0.0.1",
+        protocol: "vless",
+
+        settings: {
+          clients: [{ id: UUID }],
+          decryption: "none"
+        }
+
+      }
+
+    ],
+
+    outbounds: [
+      { protocol: "freedom" }
+    ]
+
+  };
+
+  fs.writeFileSync(CONFIG, JSON.stringify(config, null, 2));
 
 }
 
-/* ---------- 下载运行 ---------- */
+/* ---------------- RUN PROCESS ---------------- */
 
-async function downloadFilesAndRun() {
+function runProcess(cmd, args) {
 
-  const arch = getSystemArchitecture();
-  const files = getFilesForArchitecture(arch);
+  const p = spawn(cmd, args, {
+    stdio: "ignore",
+    detached: true
+  });
 
-  for (const f of files) {
-    await downloadFile(f.fileName, f.fileUrl);
-  }
-
-  fs.chmodSync(webPath, 0o775);
-  fs.chmodSync(botPath, 0o775);
-
-  await exec(`nohup ${webPath} -c ${FILE_PATH}/config.json >/dev/null 2>&1 &`);
-
-  const args = `tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile ${bootLogPath} --url http://localhost:${ARGO_PORT}`;
-
-  await exec(`nohup ${botPath} ${args} >/dev/null 2>&1 &`);
+  p.unref();
 
 }
 
-/* ---------- ISP ---------- */
+/* ---------------- ISP ---------------- */
 
-async function getMetaInfo() {
+async function getISP() {
 
   try {
 
@@ -231,17 +178,18 @@ async function getMetaInfo() {
 
 }
 
-/* ---------- 节点 ---------- */
+/* ---------------- SUB ---------------- */
 
-async function generateLinks(domain) {
+async function generateSub(domain) {
 
-  const ISP = await getMetaInfo();
+  const isp = await getISP();
 
-  const nodeName = `${NAME}-${ISP}`;
+  const node = `${NAME}-${isp}`;
 
   const vmess = {
+
     v: "2",
-    ps: nodeName,
+    ps: node,
     add: CFIP,
     port: CFPORT,
     id: UUID,
@@ -250,78 +198,109 @@ async function generateLinks(domain) {
     host: domain,
     path: "/vmess",
     tls: "tls"
+
   };
 
-  const subTxt = `
-vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${domain}&type=ws&host=${domain}&path=%2Fvless#${nodeName}
+  const sub = `
+vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${domain}&type=ws&host=${domain}&path=%2Fvless#${node}
 
 vmess://${Buffer.from(JSON.stringify(vmess)).toString("base64")}
 `;
 
-  fs.writeFileSync(subPath, Buffer.from(subTxt).toString("base64"));
+  fs.writeFileSync(SUBFILE, Buffer.from(sub).toString("base64"));
 
   app.get(`/${SUB_PATH}`, (req, res) => {
-    res.send(fs.readFileSync(subPath, "utf8"));
+    res.send(fs.readFileSync(SUBFILE, "utf8"));
   });
 
 }
 
-/* ---------- 提取域名 ---------- */
+/* ---------------- EXTRACT DOMAIN ---------------- */
 
-async function extractDomains() {
+async function extractDomain() {
 
   if (ARGO_DOMAIN) {
 
-    await generateLinks(ARGO_DOMAIN);
-
+    await generateSub(ARGO_DOMAIN);
     return;
 
   }
 
-  const content = fs.readFileSync(bootLogPath, "utf8");
+  if (!fs.existsSync(BOOTLOG)) return;
 
-  const match = content.match(/https?:\/\/([^ ]*trycloudflare\.com)/);
+  const text = fs.readFileSync(BOOTLOG, "utf8");
 
-  if (match) {
+  const m = text.match(/https?:\/\/([^ ]*trycloudflare\.com)/);
 
-    await generateLinks(match[1]);
+  if (m) {
 
-  }
-
-}
-
-/* ---------- 启动 ---------- */
-
-async function startserver() {
-
-  try {
-
-    cleanupOldFiles();
-
-    await generateConfig();
-
-    await downloadFilesAndRun();
-
-    setTimeout(async () => {
-
-      await extractDomains();
-
-    }, 5000);
-
-  } catch (e) {
-
-    console.error(e);
+    await generateSub(m[1]);
 
   }
 
 }
 
-startserver();
+/* ---------------- START ---------------- */
 
-/* ---------- http ---------- */
+async function start() {
 
-app.listen(PORT, () => {
+  console.log("Starting service...");
 
-  console.log(`Server running on port ${PORT}`);
+  generateConfig();
+
+  const arch = getArch();
+
+  const xrayURL =
+    arch === "arm"
+      ? "https://arm64.ssss.nyc.mn/web"
+      : "https://amd64.ssss.nyc.mn/web";
+
+  const argoURL =
+    arch === "arm"
+      ? "https://arm64.ssss.nyc.mn/bot"
+      : "https://amd64.ssss.nyc.mn/bot";
+
+  console.log("Downloading binaries...");
+
+  await download(xrayURL, XRAY);
+  await download(argoURL, ARGO);
+
+  fs.chmodSync(XRAY, 0o775);
+  fs.chmodSync(ARGO, 0o775);
+
+  console.log("Starting Xray...");
+
+  runProcess(XRAY, ["-c", CONFIG]);
+
+  console.log("Starting Argo...");
+
+  runProcess(ARGO, [
+    "tunnel",
+    "--edge-ip-version",
+    "auto",
+    "--no-autoupdate",
+    "--protocol",
+    "http2",
+    "--logfile",
+    BOOTLOG,
+    "--url",
+    `http://localhost:${ARGO_PORT}`
+  ]);
+
+  setTimeout(extractDomain, 6000);
+
+}
+
+/* ---------------- HTTP ---------------- */
+
+app.listen(PORT, HOST, () => {
+
+  console.log(`Server started`);
+
+  console.log(`PORT: ${PORT}`);
 
 });
+
+/* ---------------- RUN ---------------- */
+
+start();
