@@ -1,0 +1,3 @@
+[build]
+  publish = "dist"  # 你的前端构建输出目录
+  functions = "netlify-functions"
