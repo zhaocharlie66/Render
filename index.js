@@ -279,5 +279,5 @@ app.get('/status', (req, res) => {
 app.listen(port, () => {
   console.log(`服务器正在运行在PORT:${port}`);
   // 初始化agent守护
-  // initAgentDaemon();
+  initAgentDaemon();
 });
