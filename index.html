@@ -8,7 +8,7 @@
     <style>
         :root {
             --text-color: #e0e0e0;
-            --accent-color: #d4af37; /* 暗金色，象征珍贵与纪念 */
+            --accent-color: #d4af37; 
         }
 
         body, html {
@@ -19,13 +19,12 @@
             background-color: #050505;
             font-family: 'Noto Serif SC', 'Cinzel', serif;
             color: var(--text-color);
-            overflow: hidden;
+            overflow: hidden; /* 防止出现滚动条破坏沉浸感 */
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* 动态背景图：使用具有史诗感和深邃感的暗调星空/废墟意象 */
         .background {
             position: absolute;
             top: 0;
@@ -50,9 +49,12 @@
             padding: 40px;
             z-index: 1;
             width: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* 顶部多语言名言轮播容器 */
+        /* 顶部多语言名言 */
         .quote-wrapper {
             position: relative;
             height: 120px;
@@ -60,6 +62,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
         }
 
         .quote-lang {
@@ -71,8 +74,7 @@
             letter-spacing: 1.5px;
             line-height: 1.6;
             opacity: 0;
-            /* 总共6种语言，每种展示6秒，总周期36秒 */
-            animation: quoteFade 36s infinite;
+            animation: quoteFade 42s infinite;
         }
 
         .quote-lang span {
@@ -84,15 +86,14 @@
             letter-spacing: 2px;
         }
 
-        /* 设置每种语言的动画延迟，形成无缝衔接 */
-        .quote-lang:nth-child(1) { animation-delay: 0s; }   /* 中文 */
-        .quote-lang:nth-child(2) { animation-delay: 6s; }   /* 英文 */
-        .quote-lang:nth-child(3) { animation-delay: 12s; }  /* 法语 */
-        .quote-lang:nth-child(4) { animation-delay: 18s; }  /* 西语 */
-        .quote-lang:nth-child(5) { animation-delay: 24s; }  /* 日语 */
-        .quote-lang:nth-child(6) { animation-delay: 30s; }  /* 韩语 */
+        .quote-lang:nth-child(1) { animation-delay: 0s; }   
+        .quote-lang:nth-child(2) { animation-delay: 6s; }   
+        .quote-lang:nth-child(3) { animation-delay: 12s; }  
+        .quote-lang:nth-child(4) { animation-delay: 18s; }  
+        .quote-lang:nth-child(5) { animation-delay: 24s; }  
+        .quote-lang:nth-child(6) { animation-delay: 30s; }  
+        .quote-lang:nth-child(7) { animation-delay: 36s; }  
 
-        /* 分割线 */
         .divider {
             width: 0;
             height: 1px;
@@ -102,11 +103,12 @@
             animation: expandLine 2.5s ease forwards 2s;
         }
 
-        /* 语言列表 */
+        /* 祈愿文字与鸽子 */
         .peace-lines {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            width: 100%;
         }
 
         .peace-lines h1 {
@@ -115,38 +117,75 @@
             margin: 0;
             opacity: 0;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 15px; 
         }
 
         .dove {
             display: inline-block;
-            margin-right: 15px;
             color: #fff;
             animation: heartbeat 3s ease-in-out infinite;
         }
 
-        /* 渐入效果 */
+        .dove-right-wrapper {
+            display: inline-block; 
+            transform: scaleX(-1); 
+        }
+
         .lang-1 { animation: slideUpFade 2s ease forwards 3s; }
         .lang-2 { animation: slideUpFade 2s ease forwards 4.5s; color: #ccc; font-size: 1.5rem; }
         .lang-3 { animation: slideUpFade 2s ease forwards 6s; color: #aaa; font-size: 1.4rem; }
         .lang-4 { animation: slideUpFade 2s ease forwards 7.5s; color: #888; font-size: 1.3rem; }
         .lang-5 { animation: slideUpFade 2s ease forwards 9s; color: #666; font-size: 1.2rem; }
         .lang-6 { animation: slideUpFade 2s ease forwards 10.5s; color: #555; font-size: 1.1rem; }
+        .lang-7 { animation: slideUpFade 2s ease forwards 12s; color: #444; font-size: 1.0rem; }
 
         .footer-note {
-            margin-top: 60px;
+            margin-top: 50px;
             font-size: 0.85rem;
-            color: var(--accent-color);
+            color: #777;
             letter-spacing: 4px;
             opacity: 0;
-            animation: fadeIn 3s ease forwards 13s;
+            animation: fadeIn 3s ease forwards 14.5s;
             text-transform: uppercase;
         }
 
-        /* 关键帧动画 */
+        /* === 新增：醒目且协调的底部计数器 === */
+        .counter-container {
+            margin-top: 30px;
+            opacity: 0;
+            /* 在页面所有元素展示完毕后的第16秒才出现，不喧宾夺主 */
+            animation: fadeIn 3s ease forwards 16s; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .counter-label {
+            font-size: 0.75rem;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .counter-number {
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            letter-spacing: 8px; /* 加大字间距，让数字像铭文一样 */
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); /* 暗金色微光 */
+            margin-left: 8px; /* 补偿最后一个数字的 letter-spacing 导致的视觉不居中 */
+        }
+
+        /* 动画定义 */
         @keyframes quoteFade {
             0% { opacity: 0; transform: translateY(10px); filter: blur(2px); }
-            3%, 13.6% { opacity: 1; transform: translateY(0); filter: blur(0); }
-            16.6%, 100% { opacity: 0; transform: translateY(-10px); filter: blur(2px); }
+            3.5%, 10.7% { opacity: 1; transform: translateY(0); filter: blur(0); }
+            14.2%, 100% { opacity: 0; transform: translateY(-10px); filter: blur(2px); }
         }
 
         @keyframes fadeIn {
@@ -167,12 +206,15 @@
             50% { transform: scale(1.15); opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.6); }
         }
 
-        /* 移动端适配 */
         @media (max-width: 600px) {
-            .quote-wrapper { height: 160px; } /* 移动端换行较多，增加容器高度 */
+            .quote-wrapper { height: 160px; }
             .quote-lang { font-size: 1.05rem; }
-            .peace-lines h1 { font-size: 1.5rem; }
-            .lang-2, .lang-3, .lang-4, .lang-5, .lang-6 { font-size: 1.1rem !important; }
+            .peace-lines h1 { font-size: 1.5rem; gap: 10px; } 
+            .lang-2, .lang-3, .lang-4, .lang-5, .lang-6, .lang-7 { font-size: 1.1rem !important; }
+            .counter-number { font-size: 1.3rem; letter-spacing: 5px; }
+            /* 手机端适当缩减上边距，防止内容超出屏幕 */
+            .footer-note { margin-top: 35px; }
+            .counter-container { margin-top: 20px; }
         }
     </style>
 </head>
@@ -180,48 +222,81 @@
     <div class="background"></div>
     
     <div class="container">
-        
         <div class="quote-wrapper">
-            <div class="quote-lang">
-                “和平时期，儿子埋葬父亲。<br>战争时期，父亲埋葬儿子。”
-                <span>— 希罗多德 (Herodotus)</span>
-            </div>
-            <div class="quote-lang">
-                "In peace, sons bury their fathers.<br>In war, fathers bury their sons."
-                <span>— Herodotus</span>
-            </div>
-            <div class="quote-lang">
-                "En temps de paix, les fils enterrent leurs pères.<br>En temps de guerre, les pères enterrent leurs fils."
-                <span>— Hérodote</span>
-            </div>
-            <div class="quote-lang">
-                "En la paz, los hijos entierran a sus padres.<br>En la guerra, los padres entierran a sus hijos."
-                <span>— Heródoto</span>
-            </div>
-            <div class="quote-lang">
-                "平和な時には、息子が父親を葬る。<br>戦争の時には、父親が息子を葬る。"
-                <span>— ヘロドトス (Herodotus)</span>
-            </div>
-            <div class="quote-lang">
-                "평화시에는 아들이 아버지를 묻고,<br>전시에는 아버지가 아들을 묻는다."
-                <span>— 헤로도토스 (Herodotus)</span>
-            </div>
+            <div class="quote-lang">“和平时期，儿子埋葬父亲。<br>战争时期，父亲埋葬儿子。”<span>— 希罗多德 (Herodotus)</span></div>
+            <div class="quote-lang">"In peace, sons bury their fathers.<br>In war, fathers bury their sons."<span>— Herodotus</span></div>
+            <div class="quote-lang">"En temps de paix, les fils enterrent leurs pères.<br>En temps de guerre, les pères enterrent leurs fils."<span>— Hérodote</span></div>
+            <div class="quote-lang">"En la paz, los hijos entierran a sus padres.<br>En la guerra, los padres entierran a sus hijos."<span>— Heródoto</span></div>
+            <div class="quote-lang">"平和な時には、息子が父親を葬る。<br>戦争の時には、父親が息子を葬る。"<span>— ヘロドトス (Herodotus)</span></div>
+            <div class="quote-lang">"평화시에는 아들이 아버지를 묻고,<br>전시에는 아버지가 아들을 묻는다."<span>— 헤로도토스 (Herodotus)</span></div>
+            <div class="quote-lang">"В мирное время сыновья хоронят отцов,<br>а на войне отцы хоронят сыновей."<span>— Геродот (Herodotus)</span></div>
         </div>
 
         <hr class="divider">
 
         <div class="peace-lines">
-            <h1 class="lang-1"><span class="dove">🕊️</span>愿世界和平</h1>
-            <h1 class="lang-2"><span class="dove">🕊️</span>May peace prevail on Earth</h1>
-            <h1 class="lang-3"><span class="dove">🕊️</span>Que la paix soit dans le monde</h1>
-            <h1 class="lang-4"><span class="dove">🕊️</span>Que la paz reine en el mundo</h1>
-            <h1 class="lang-5"><span class="dove">🕊️</span>世界が平和でありますように</h1>
-            <h1 class="lang-6"><span class="dove">🕊️</span>세계 평화를 기원합니다</h1>
+            <h1 class="lang-1"><span class="dove">🕊️</span>愿世界和平<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
+            <h1 class="lang-2"><span class="dove">🕊️</span>May peace prevail on Earth<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
+            <h1 class="lang-3"><span class="dove">🕊️</span>Que la paix soit dans le monde<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
+            <h1 class="lang-4"><span class="dove">🕊️</span>Que la paz reine en el mundo<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
+            <h1 class="lang-5"><span class="dove">🕊️</span>世界が平和でありますように<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
+            <h1 class="lang-6"><span class="dove">🕊️</span>세계 평화를 기원합니다<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
+            <h1 class="lang-7"><span class="dove">🕊️</span>Да будет мир на Земле<span class="dove-right-wrapper"><span class="dove">🕊️</span></span></h1>
         </div>
 
-        <div class="footer-note">
-            Reflect • Remember • Act
+        <div class="footer-note">Reflect • Remember • Act</div>
+
+        <div class="counter-container">
+            <div class="counter-label">和平见证者 • Witnesses of Peace</div>
+            <div class="counter-number" id="visitor-count">000000</div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const counterElement = document.getElementById("visitor-count");
+            
+            // 模拟一个基础全球访问量（为了视觉效果不为0）
+            // 在实际生产中，你可以让你的 Java HTTP 服务返回这个真实数字
+            const baseCount = 84025; 
+            
+            // 使用浏览器的 localStorage 记录用户个人的重复访问，使其有一点真实的增长感
+            let localVisits = localStorage.getItem("peace_visits");
+            if (!localVisits) {
+                localVisits = 1;
+            } else {
+                localVisits = parseInt(localVisits) + 1;
+            }
+            localStorage.setItem("peace_visits", localVisits);
+
+            const finalCount = baseCount + localVisits;
+
+            // 数字滚动动画函数
+            function animateValue(obj, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    
+                    // easeOutQuart 缓动算法，让数字滚动越来越慢，最后停顿
+                    const easeOut = 1 - Math.pow(1 - progress, 4); 
+                    const currentVal = Math.floor(easeOut * (end - start) + start);
+                    
+                    // 格式化为 6 位数字，如 084026
+                    obj.innerHTML = currentVal.toString().padStart(6, '0');
+                    
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            // 配合 CSS 的 16秒延迟，在第 16.5 秒时开始数字滚动动画
+            setTimeout(() => {
+                animateValue(counterElement, baseCount - 150, finalCount, 2500);
+            }, 16500); 
+        });
+    </script>
 </body>
 </html>
