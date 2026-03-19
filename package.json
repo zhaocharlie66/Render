@@ -1,9 +1,9 @@
 {
-  "name": "render-go",
-  "version": "1,0,0",
-  "description": "Thsi is a node project",
+  "name": "NetlifyApp-GO",
+  "version": "1.0.0",
+  "description": "Thsi is a Netlify node project",
   "main": "index.js",
-  "author": "eooce",
+  "author": "DAVID",
   "repository": "",
   "license": "MIT",
   "private": false,
